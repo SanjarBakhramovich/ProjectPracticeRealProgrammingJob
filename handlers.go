@@ -8,17 +8,34 @@ import (
 
 // Обработчик для создания сообщения
 func CreateMessage(w http.ResponseWriter, r *http.Request) {
-    var msg Message
-    if err := json.NewDecoder(r.Body).Decode(&msg); err != nil {
+	var input struct {
+		Message string `json:"message"`
+	}
+
+    if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
         http.Error(w, err.Error(), http.StatusBadRequest)
         return
     }
-    fmt.Printf("Received message: %+v\n", msg) // Логирование полученного сообщения
+	
+    fmt.Printf("Received message: %+v\n", input.Message) // Логирование полученного сообщения
+
+	msg:= Message {
+		Text : input.Message,
+	}
     if err := DB.Create(&msg).Error; err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
+	w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusCreated)
+
+	json.NewEncoder(w).Encode(struct {
+		ID uint `json:"id"`
+		Message string `json:"message"`
+	}{
+		ID: msg.ID,
+		Message: msg.Text,
+	})
 }
 
 // Обработчик для получения всех сообщений

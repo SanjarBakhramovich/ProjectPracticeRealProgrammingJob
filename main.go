@@ -25,6 +25,7 @@ func main() {
 	// Установка маршрутов и связанных обработчиков
 	router.HandleFunc("/api/hello", HelloHandler).Methods("GET")
 	router.HandleFunc("/api/update-message", UpdateMessageHandler).Methods("POST")
+	
 	router.HandleFunc("/api/messages", CreateMessage).Methods("POST")
 	router.HandleFunc("/api/messages", GetMessages).Methods("GET")
 
