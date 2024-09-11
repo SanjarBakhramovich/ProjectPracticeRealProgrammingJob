@@ -7,5 +7,5 @@ import (
 // Message структура для хранения сообщений
 type Message struct {
     gorm.Model
-    Text string `json:"text"` // Наш сервер будет ожидать JSON с полем text
+    Text string `json:"text"` // Тег JSON должен совпадать с ключом в JSON
 }
