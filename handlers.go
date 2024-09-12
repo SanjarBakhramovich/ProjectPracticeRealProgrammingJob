@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
+// POST
 // Обработчик для создания сообщения
 func CreateMessage(w http.ResponseWriter, r *http.Request) {
 	var input struct {
@@ -38,6 +41,7 @@ func CreateMessage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// GET
 // Обработчик для получения всех сообщений
 func GetMessages(w http.ResponseWriter, r *http.Request) {
 	var messages []Message
@@ -53,11 +57,13 @@ func GetMessages(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(messages)
 }
 
+// GET
 // Обработчик для приветствия
 func HelloHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello, %s!", message)
 }
 
+// POST
 // Обработчик для обновления сообщения
 func UpdateMessageHandler(w http.ResponseWriter, r *http.Request) {
 	var req MessageRequest
@@ -69,3 +75,77 @@ func UpdateMessageHandler(w http.ResponseWriter, r *http.Request) {
 	message = req.Message
 	fmt.Fprintln(w, "Message updated successfully")
 }
+
+
+// PATCH
+// Обработчик для обновления сообщения
+func UpdateMessage(w http.ResponseWriter, r *http.Request) {
+	// Получаем ID из URL
+	params := mux.Vars(r)
+	id := params["id"]
+
+	// Ищем сообщение по ID
+	var msg Message
+	if err := DB.First(&msg, id).Error; err != nil{
+		http.Error(w, "Message not found", http.StatusNotFound)
+		return
+	}
+	
+	// Декодируем тело запроса
+	var input struct {
+		Message string `json:"message"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil{
+		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
+
+	// Обновляем сообщение
+	msg.Text = input.Message
+	if err := DB.Save(&msg).Error; err != nil {
+		http.Error(w, "Failed to update message", http.StatusInternalServerError)
+		return
+	}
+
+	// Возвращаем обновленное сообщение
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(struct {
+		ID uint `json:"id"`
+		Message string `json:"message"`
+	}{
+		ID: msg.ID,
+		Message: msg.Text,
+	})
+}
+
+// DELETE
+// Обработчик для удаления сообщения по ID
+func DeleteMessage(w http.ResponseWriter, r *http.Request) {	
+	// Получаем ID из URL
+	params := mux.Vars(r)
+	id := params["id"]
+
+	// Ищем сообщение по ID
+	var msg Message
+	if err := DB.First(&msg, id).Error; err != nil {
+		http.Error(w, "Message not found", http.StatusNotFound)
+		return
+	}
+
+	// Удаляем сообщение
+	if err := DB.Delete(&msg).Error; err != nil {
+		http.Error(w, "Failed to delete message", http.StatusInternalServerError)
+		return
+	}
+	
+	// Отправляем статус успешного удаления
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(struct {
+		Message string `json:"message"`
+	}{
+		Message: "Message deleted successfully",
+	})
+}
+

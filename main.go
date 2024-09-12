@@ -20,14 +20,18 @@ func main() {
 	// Автоматическая миграция модели Message
 	DB.AutoMigrate(&Message{})
 
+	// ROUTERS
 	// Создание маршрутизатора
 	router := mux.NewRouter()
 	// Установка маршрутов и связанных обработчиков
 	router.HandleFunc("/api/hello", HelloHandler).Methods("GET")
 	router.HandleFunc("/api/update-message", UpdateMessageHandler).Methods("POST")
-	
 	router.HandleFunc("/api/messages", CreateMessage).Methods("POST")
 	router.HandleFunc("/api/messages", GetMessages).Methods("GET")
+	router.HandleFunc("/api/messages/{id}", UpdateMessage).Methods("PATCH")
+	router.HandleFunc("/api/messages/{id}", DeleteMessage).Methods("DELETE")
+	// 
+
 
 	// Запуск сервера
 	fmt.Println("Server is running on http://localhost:8080")
