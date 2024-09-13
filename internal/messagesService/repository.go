@@ -32,8 +32,6 @@ func (r *messageRepository) GetAllMessages() ([]Message, error) {
 	err := r.db.Find(&messages).Error
 	return messages, err
 }
-
-
 // Patch Message - Обновление сообщения по ID
 func (r *messageRepository) UpdateMessageByID(id int, message Message) (Message, error) {
 	var existingMessage Message
@@ -48,7 +46,6 @@ func (r *messageRepository) UpdateMessageByID(id int, message Message) (Message,
 	}
     return existingMessage, nil
 }
-
 
 // Delete Message - Удаление сообщения
 func (r *messageRepository) DeleteMessageByID(id int) error {

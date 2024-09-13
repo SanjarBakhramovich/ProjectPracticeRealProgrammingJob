@@ -23,3 +23,11 @@ func (s *MessageService) CreateMessage(message Message) (Message, error) {
 func (s *MessageService) GetAllMessages(message Message) ([]Message, error) {
 	return s.repo.GetAllMessages()
 }
+// Patch Message - Обновление сообщения по ID
+func (s *MessageService) UpdateMessageByID(id int, message Message) (Message, error) {
+	return s.repo.UpdateMessageByID(id, message)
+}
+// Delete Message - Удаление сообщения
+func (s *MessageService) DeleteMessageByID(id int) error {
+	return s.repo.DeleteMessageByID(id)
+}

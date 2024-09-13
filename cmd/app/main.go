@@ -32,6 +32,8 @@ func main() {
 	router.HandleFunc("/api/get", handler.GetMessagesHandler).Methods("GET")
 	router.HandleFunc("/api/post", handler.PostMessageHandler).Methods("POST")
 	// 
+	router.HandleFunc("/api/patch/{id:[0-9]+}", handler.PatchMessageHandler).Methods("PATCH")
+	router.HandleFunc("/api/delete/{id:[0-9]+}", handler.DeleteMessageHandler).Methods("DELETE")
 
 
 	// Запуск сервера
