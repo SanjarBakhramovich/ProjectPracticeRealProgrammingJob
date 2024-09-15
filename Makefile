@@ -9,7 +9,7 @@ migrate-new:
 	migrate create -ext sql -dir ./migrations ${NAME}
 
 # Применение миграций
-migrate:
+migrate-up:
 	$(MIGRATE) up
 
 # Откат миграций

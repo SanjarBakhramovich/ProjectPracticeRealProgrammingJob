@@ -24,7 +24,7 @@ func NewHandler(service *messagesService.MessageService) *Handler{
 // GET
 // Обработчик для получения всех сообщений
 func (h *Handler) GetMessagesHandler(w http.ResponseWriter, r *http.Request) {
-	messages, err := h.Service.GetAllMessages() //исправил ошибку в задании
+	messages, err := h.Service.GetAllMessages() 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
