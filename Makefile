@@ -19,3 +19,11 @@ migrate-down:
 # Команда для запуска приложения
 run:
 	go run cmd/app/main.go
+
+# Команда для облегчения git commit и push
+
+git:
+	@read -p "Введите сообщение коммита: " msg; \
+	git add .; \
+	git commit -m "$$msg"; \
+	git push -u origin main
