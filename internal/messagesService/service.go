@@ -20,7 +20,7 @@ func (s *MessageService) CreateMessage(message Message) (Message, error) {
 
 
 // Get Messages - Получение всех сообщений
-func (s *MessageService) GetAllMessages(message Message) ([]Message, error) {
+func (s *MessageService) GetAllMessages() ([]Message, error) {
 	return s.repo.GetAllMessages()
 }
 // Patch Message - Обновление сообщения по ID
