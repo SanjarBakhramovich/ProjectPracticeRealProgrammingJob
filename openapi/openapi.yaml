@@ -1,0 +1,56 @@
+openapi: 3.1.0 # Версия OpenAPI спецификации
+info:
+  title: My API # Название вашего API
+  description: API description # Описание вашего API
+  version: 1.0.0 # Версия вашего API
+paths:
+  /messages/{id}:
+    patch:
+      summary: "Обновить сообщение по ID"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: "Данные сообщения для обновления"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Message"
+      responses:
+        "200":
+          description: "Успешное обновление сообщения"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "400":
+          description: "Некорректный запрос"
+        "404":
+          description: "Сообщение не найдено"
+
+    delete:
+      summary: "Удалить сообщение по ID"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Сообщение успешно удалено"
+        "404":
+          description: "Сообщение не найдено"
+components:
+  schemas:
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+        message:
+          type: string

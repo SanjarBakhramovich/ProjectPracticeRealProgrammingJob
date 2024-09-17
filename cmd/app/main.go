@@ -4,42 +4,37 @@ import (
 	"REST/internal/database"
 	"REST/internal/handlers"
 	"REST/internal/messagesService"
-	"fmt"
-	"net/http"
+	"log"
 
-	"github.com/gorilla/mux"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
-
-
-
 func main() {
-	// Инициализация базы данных
-	database.InitDB()
-	// Автоматическая миграция модели Message
-	database.DB.AutoMigrate(&messagesService.Message{})
+    // Инициализация базы данных
+    database.InitDB()
+    // Автоматическая миграция модели Message
+    database.DB.AutoMigrate(&messagesService.Message{})
 
+    // Инициализация сервиса
+    repo := messagesService.NewMessageRepository(database.DB)
+    service := messagesService.NewService(repo)
+    // Инициализация обработчиков
+    handler := handlers.NewHandler(service)
 
-	// Инициализация сервиса
-	repo := messagesService.NewMessageRepository(database.DB)	// Инициализация обработчиков
-	service := messagesService.NewService(repo)
-	// Инициализация обработчиков
-	handler := handlers.NewHandler(service)
-	// ROUTERS
-	// Создание маршрутизатора
-	router := mux.NewRouter()
-	// Установка маршрутов и связанных обработчиков
-	router.HandleFunc("/api/get", handler.GetMessagesHandler).Methods("GET")
-	router.HandleFunc("/api/post", handler.PostMessageHandler).Methods("POST")
-	// 
-	router.HandleFunc("/api/patch/{id:[0-9]+}", handler.PatchMessageHandler).Methods("PATCH")
-	router.HandleFunc("/api/delete/{id:[0-9]+}", handler.DeleteMessageHandler).Methods("DELETE")
+    // Инициализация сервера
+    e := echo.New()
 
+    // Используем Logger и Recover
+    e.Use(middleware.Logger())
+    e.Use(middleware.Recover())
 
-	// Запуск сервера
-	fmt.Println("Server is running on http://localhost:8080")
-	err := http.ListenAndServe(":8080", router)
-	if err != nil {
-		fmt.Println("Error starting server", err)
-	}
+    // Передаем и регистрируем хендлеры в echo
+    messagesHandler := messagesService.NewStrictHandler(handler, nil)
+    messagesService.RegisterHandlers(e, messagesHandler)
+
+    // Запуск сервера
+    if err := e.Start(":8080"); err != nil {
+        log.Fatalf("failed to start with err: %v", err)
+    }
 }
