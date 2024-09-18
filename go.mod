@@ -5,6 +5,7 @@ go 1.23.1
 require (
 	github.com/gorilla/mux v1.8.1
 	github.com/labstack/echo/v4 v4.12.0
+	github.com/oapi-codegen/runtime v1.1.1
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/gorm v1.25.12
 )

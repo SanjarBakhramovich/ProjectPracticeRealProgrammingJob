@@ -11,30 +11,26 @@ import (
 )
 
 func main() {
-    // Инициализация базы данных
-    database.InitDB()
-    // Автоматическая миграция модели Message
-    database.DB.AutoMigrate(&messagesService.Message{})
+	database.InitDB()
+	database.DB.AutoMigrate(&messagesService.Message{})
 
-    // Инициализация сервиса
-    repo := messagesService.NewMessageRepository(database.DB)
-    service := messagesService.NewService(repo)
-    // Инициализация обработчиков
-    handler := handlers.NewHandler(service)
+	repo := messagesService.NewMessageRepository(database.DB)
+	service := messagesService.NewService(repo)
 
-    // Инициализация сервера
-    e := echo.New()
+	handler := handlers.NewHandler(service)
+	
+	// Инициализируем echo
+	e := echo.New()
+	
+	// используем Logger и Recover
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	
+	// Передаем и регистрируем хендлер в echo
+	strictHandler := messages.NewStrictHandler(handler, nil) // тут будет ошибка
+	messages.RegisterHandlers(e, strictHandler)
 
-    // Используем Logger и Recover
-    e.Use(middleware.Logger())
-    e.Use(middleware.Recover())
-
-    // Передаем и регистрируем хендлеры в echo
-    messagesHandler := messagesService.NewStrictHandler(handler, nil)
-    messagesService.RegisterHandlers(e, messagesHandler)
-
-    // Запуск сервера
-    if err := e.Start(":8080"); err != nil {
-        log.Fatalf("failed to start with err: %v", err)
-    }
+	if err := e.Start(":8080"); err != nil {
+		log.Fatalf("failed to start with err: %v", err)
+	}
 }
