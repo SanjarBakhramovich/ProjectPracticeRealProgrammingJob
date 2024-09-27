@@ -22,7 +22,7 @@ run:
 
 # Команда для генерации кода API из OpenAPI спецификации и запуска приложения
 gen:
-	oapi-codegen -config ./openapi/.openapi -include-tags messages -package messages ./openapi/openapi.yaml > ./internal/web/messages/api.gen.go
+	oapi-codegen -config openapi/.openapi -include-tags messages -package messages openapi/openapi.yaml > ./internal/web/messages/api.gen.go
 
 # Команда для облегчения git commit и push
 git:

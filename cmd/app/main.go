@@ -42,7 +42,7 @@ func main() {
 		if err := c.Bind(&req.Body); err != nil {
 			return err
 		}
-		return handler.PostMessageHandler(c.Request().Context(), req)
+		return handlers.PostMessageHandler(c.Request().Context(), req)
 	})
 	e.PATCH("api/patch/:id", handler.PatchMessageHandler) // Fixed PATCH route
 	
