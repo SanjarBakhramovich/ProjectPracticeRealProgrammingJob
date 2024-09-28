@@ -2,23 +2,18 @@ package handlers
 
 import (
 	"REST/internal/messagesService"
-	"REST/internal/web/messages"
-
+	messages "REST/internal/messagesService"
 	"context"
 	"net/http"
 	"strconv"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo"
 )
 
 // Обработчики для API
 type Handler struct {
 	Service *messagesService.MessageService
 }
-
-
-
-
 
 // Конструктор для создания структуры Handler
 func NewHandler(service *messagesService.MessageService) *Handler {
@@ -28,28 +23,32 @@ func NewHandler(service *messagesService.MessageService) *Handler {
 }
 
 // GET
-// Обработчик для получения всех сообщений
+// Получить все сообщения
 func (h *Handler) GetMessagesHandler(_ context.Context, _ messages.GetMessagesRequestObject) (messages.GetMessagesResponseObject, error) {
 	// Получение всех сообщений из сервиса
 	allMessages, err := h.Service.GetAllMessages()
-	if err!= nil {
-        return nil, err
-    }
 
-	response := messages.GetMessages200JSONResponse{}
+	if err != nil {
+		return nil, err
+	}
 
-	for _, msg := range allMessages{
+	var response []messages.Message
+
+	for _, msg := range allMessages {
 		message := messages.Message{
-			Id:      &msg.ID,
-            Message: &msg.Text,
+			Id:      msg.ID,
+			Message: msg.Text,
 		}
 		response = append(response, message)
 	}
-	return response, nil
+
+	return messages.GetMessages200JSONResponse{
+		JSON200: &response,
+	}, nil
 }
 
 // POST
-// Обработчик для добавления нового сообщения
+// Создать новое сообщение
 func (h *Handler) PostMessageHandler(_ context.Context, request messages.PostMessagesRequestObject) (messages.PostMessagesResponseObject, error) {
 	messageRequest := request.Body
 
@@ -67,9 +66,6 @@ func (h *Handler) PostMessageHandler(_ context.Context, request messages.PostMes
 	return response, nil
 }
 
-
-
-
 // PATCH /api/patch/{id}
 // Обработчик для обновления сообщения
 func (h *Handler) PatchMessageHandler(c echo.Context) error{
@@ -77,7 +73,7 @@ func (h *Handler) PatchMessageHandler(c echo.Context) error{
 	id, err := strconv.Atoi(idParam)
 
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID"})
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Недопустимый ID"})
 	}
 
 	var message messagesService.Message
@@ -99,7 +95,7 @@ func (h *Handler) DeleteMessageHandler(c echo.Context) error {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Invalid ID"})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Недопустимый ID"})
 	}
 
 	err = h.Service.DeleteMessageByID(id)

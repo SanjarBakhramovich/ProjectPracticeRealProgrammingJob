@@ -4,7 +4,6 @@ import (
 	"REST/internal/database"
 	"REST/internal/handlers"
 	"REST/internal/messagesService"
-	"REST/internal/web/messages"
 	"log"
 	"net/http"
 
@@ -30,7 +29,7 @@ func main() {
 	
 	// Передаем и регистрируем хендлер в echo
 	e.GET("api/messages", func(c echo.Context) error {
-		response, err := handler.GetMessagesHandler(c.Request().Context(), messages.GetMessagesRequestObject{})
+		response, err := handler.GetMessagesHandler(c.Request().Context(), messagesService.Message{})
 		if err != nil {
 			return err
 		}
@@ -38,11 +37,16 @@ func main() {
 	})
 	
 	e.POST("api/messages", func(c echo.Context) error {
-		var req messages.PostMessagesRequestObject
-		if err := c.Bind(&req.Body); err != nil {
+		var req messagesService.Message
+		if err := c.Bind(&req); err != nil {
 			return err
 		}
-		return handlers.PostMessageHandler(c.Request().Context(), req)
+
+		response, err := handler.PostMessageHandler(c.Request().Context(), req)
+		if err != nil {
+			return err
+		}
+		return c.JSON(http.StatusCreated, response)
 	})
 	e.PATCH("api/patch/:id", handler.PatchMessageHandler) // Fixed PATCH route
 	
