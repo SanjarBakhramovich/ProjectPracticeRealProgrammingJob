@@ -4,8 +4,8 @@ import (
 	"REST/internal/database"
 	"REST/internal/handlers"
 	"REST/internal/messagesService"
+	"REST/internal/web/messages"
 	"log"
-	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -27,29 +27,10 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	
-	// Передаем и регистрируем хендлер в echo
-	e.GET("api/messages", func(c echo.Context) error {
-		response, err := handler.GetMessagesHandler(c.Request().Context(), messagesService.Message{})
-		if err != nil {
-			return err
-		}
-		return c.JSON(http.StatusOK, response)
-	})
-	
-	e.POST("api/messages", func(c echo.Context) error {
-		var req messagesService.Message
-		if err := c.Bind(&req); err != nil {
-			return err
-		}
+	// Прикол для работы в echo. Передаем и регистрируем хендлер в echo
+	strictHandler := messages.NewStrictHandler(handler, nil) // тут будет ошибка
+	messages.RegisterHandlers(e, strictHandler)
 
-		response, err := handler.PostMessageHandler(c.Request().Context(), req)
-		if err != nil {
-			return err
-		}
-		return c.JSON(http.StatusCreated, response)
-	})
-	e.PATCH("api/patch/:id", handler.PatchMessageHandler) // Fixed PATCH route
-	
 	if err := e.Start(":8080"); err != nil {
 		log.Fatalf("failed to start with err: %v", err)
 	}

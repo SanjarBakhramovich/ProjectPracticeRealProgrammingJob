@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"REST/internal/messagesService"
-	messages "REST/internal/messagesService"
+	"REST/internal/web/messages"
 	"context"
 	"net/http"
 	"strconv"
@@ -23,30 +23,28 @@ func NewHandler(service *messagesService.MessageService) *Handler {
 }
 
 // GET
-// Получить все сообщения
-func (h *Handler) GetMessagesHandler(_ context.Context, _ messages.GetMessagesRequestObject) (messages.GetMessagesResponseObject, error) {
-	// Получение всех сообщений из сервиса
-	allMessages, err := h.Service.GetAllMessages()
+	func (h *Handler) GetAllMessagesHandler(ctx context.Context, request messages.GetMessagesRequestObject) (messages.GetMessagesResponseObject, error) {
+		// Получить все сообщения
 
-	if err != nil {
-		return nil, err
-	}
+		// Получить все сообщения из сервиса
+		allMessages, err := h.Service.GetAllMessages()
 
-	var response []messages.Message
-
-	for _, msg := range allMessages {
-		message := messages.Message{
-			Id:      msg.ID,
-			Message: msg.Text,
+		if err != nil {
+			return nil, err
 		}
-		response = append(response, message)
+
+		var response []messages.Message
+
+		for _, msg := range allMessages {
+			message := messages.Message{
+				Id:      &msg.ID,
+				Message: &msg.Text,
+			}
+			response = append(response, message)
+		}
+
+		return messages.GetMessages200JSONResponse(response), nil
 	}
-
-	return messages.GetMessages200JSONResponse{
-		JSON200: &response,
-	}, nil
-}
-
 // POST
 // Создать новое сообщение
 func (h *Handler) PostMessageHandler(_ context.Context, request messages.PostMessagesRequestObject) (messages.PostMessagesResponseObject, error) {
