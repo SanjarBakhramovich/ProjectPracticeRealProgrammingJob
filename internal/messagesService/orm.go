@@ -2,6 +2,7 @@ package messagesService
 
 import (
 	"gorm.io/gorm"
+    
 )
 
 // Message структура для хранения сообщений

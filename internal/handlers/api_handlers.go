@@ -23,28 +23,31 @@ func NewHandler(service *messagesService.MessageService) *Handler {
 }
 
 // GET
-	func (h *Handler) GetAllMessagesHandler(ctx context.Context, request messages.GetMessagesRequestObject) (messages.GetMessagesResponseObject, error) {
-		// Получить все сообщения
+func (h *Handler) GetAllMessagesHandler(ctx context.Context, request messages.GetMessagesRequestObject) (messages.GetMessagesResponseObject, error) {
+	// Получить все сообщения
 
-		// Получить все сообщения из сервиса
-		allMessages, err := h.Service.GetAllMessages()
+	// Получить все сообщения из сервиса
+	allMessages, err := h.Service.GetAllMessages()
 
-		if err != nil {
-			return nil, err
-		}
-
-		var response []messages.Message
-
-		for _, msg := range allMessages {
-			message := messages.Message{
-				Id:      &msg.ID,
-				Message: &msg.Text,
-			}
-			response = append(response, message)
-		}
-
-		return messages.GetMessages200JSONResponse(response), nil
+	if err != nil {
+		// Вернуть объект ошибки, если есть проблемы
+		return messages.GetMessages500Response{Error: "Ошибка сервера"}, err
 	}
+
+	var response []messages.Message
+
+	for _, msg := range allMessages {
+		message := messages.Message{
+			Id:      int(msg.ID), // Преобразуем uint в int
+			Message: msg.Text,    // Используем обычное строковое значение
+		}
+		response = append(response, message)
+	}
+
+	// Возвращаем успешный ответ
+	return messages.GetMessages200JSONResponse(response), nil
+}
+
 // POST
 // Создать новое сообщение
 func (h *Handler) PostMessageHandler(_ context.Context, request messages.PostMessagesRequestObject) (messages.PostMessagesResponseObject, error) {
@@ -54,19 +57,21 @@ func (h *Handler) PostMessageHandler(_ context.Context, request messages.PostMes
 	createdMessage, err := h.Service.CreateMessage(messageToCreate)
 
 	if err != nil {
-		return nil, err
+		// Вернуть объект ошибки при проблемах
+		return messages.PostMessages500Response{Error: "Ошибка создания сообщения"}, err
 	}
 
+	// Убедитесь, что структура PostMessages201JSONResponse определена в messages
 	response := messages.PostMessages201JSONResponse{
-        Id:      &createdMessage.ID,
-        Message: &createdMessage.Text,
-    }
+		Id:      int(createdMessage.ID),
+		Message: createdMessage.Text,
+	}
 	return response, nil
 }
 
 // PATCH /api/patch/{id}
 // Обработчик для обновления сообщения
-func (h *Handler) PatchMessageHandler(c echo.Context) error{
+func (h *Handler) PatchMessageHandler(c echo.Context) error {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 
