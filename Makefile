@@ -21,7 +21,7 @@ run:
 	go run cmd/app/main.go
 
 # Команда для генерации кода API из OpenAPI спецификации и запуска приложения
-gen:
+generate:
 	oapi-codegen -config openapi/.openapi -include-tags messages -package messages openapi/openapi.yaml > ./internal/web/messages/api.gen.go
 
 # Команда для облегчения git commit и push

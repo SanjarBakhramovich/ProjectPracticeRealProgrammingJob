@@ -2,7 +2,6 @@ package main
 
 import (
 	"REST/internal/database"
-	"REST/internal/handlers"
 	"REST/internal/messagesService"
 	"REST/internal/web/messages"
 	"log"
@@ -10,7 +9,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
-
 func main() {
 	database.InitDB()
 	database.DB.AutoMigrate(&messagesService.Message{})
@@ -28,7 +26,7 @@ func main() {
 	e.Use(middleware.Recover())
 	
 	// Прикол для работы в echo. Передаем и регистрируем хендлер в echo
-	strictHandler := messages.NewStrictHandler(handler, nil) // тут будет ошибка
+	strictHandler := messages.NewStrictHandler(handler, []messages.StrictMiddlewareFunc{}) // тут будет ошибка
 	messages.RegisterHandlers(e, strictHandler)
 
 	if err := e.Start(":8080"); err != nil {
